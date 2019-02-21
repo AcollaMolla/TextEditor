@@ -14,7 +14,8 @@ namespace TextEditor
     public partial class Form1 : Form
     {
         private bool edited = false; //Has the document been edited yet?
-        private string fileName;
+        private string fileName = "dok1.txt";
+        private string fileNameToShow;
         private string windowTitle = "TextEditor - "; //The title for the main frame
         private bool savedAs = false; //Has the user specified a name for this document yet?
 
@@ -26,6 +27,9 @@ namespace TextEditor
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
             label2.Text = "True";
+            fileNameToShow = fileName;
+            if (!fileNameToShow[(fileNameToShow.Length - 1)].Equals('*')) fileNameToShow = fileNameToShow + "*"; //Add a '*' when user starts edit
+            Form1.ActiveForm.Text = windowTitle + fileNameToShow;
             edited = true;
         }
 
@@ -50,7 +54,8 @@ namespace TextEditor
         {
             if (!savedAs) saveFileAs();
             if (savedAs) saveFile();
-            //edited = false;
+            fileName.TrimEnd('*');
+            Form1.ActiveForm.Text = windowTitle + fileName;
         }
 
         private void saveFileAs()
