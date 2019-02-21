@@ -13,9 +13,9 @@ namespace TextEditor
 {
     public partial class Form1 : Form
     {
-        private bool edited = false;
+        private bool edited = false; //Has the document been edited yet?
         private string fileName;
-        private string windowTitle = "TextEditor - ";
+        private string windowTitle = "TextEditor - "; //The title for the main frame
         private bool savedAs = false; //Has the user specified a name for this document yet?
 
         public Form1()
@@ -49,6 +49,8 @@ namespace TextEditor
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (!savedAs) saveFileAs();
+            if (savedAs) saveFile();
+            //edited = false;
         }
 
         private void saveFileAs()
@@ -79,6 +81,77 @@ namespace TextEditor
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             saveFileAs();
+        }
+
+        private void saveAndExitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (edited)
+            {
+                if (!savedAs) saveFileAs();
+                if (savedAs) saveFile();
+            }
+            Form1.ActiveForm.Close();
+        }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (edited)
+            {
+                var result = getUserChoice();
+                if(result == DialogResult.Yes)
+                {
+                    if (!savedAs) saveFileAs();
+                    if (savedAs) saveFile();
+                }
+                if (result == DialogResult.Cancel) return;
+            }
+            var filePath = string.Empty;
+            var fileContent = string.Empty;
+            openFileDialog1.Filter = "txt file (*.txt)|*.txt";
+            openFileDialog1.FilterIndex = 1;
+            openFileDialog1.RestoreDirectory = true;
+            if(openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                filePath = openFileDialog1.FileName;
+                var fileStream = openFileDialog1.OpenFile();
+                using (StreamReader reader = new StreamReader(fileStream))
+                {
+                    fileContent = reader.ReadToEnd();
+                    richTextBox1.Text = fileContent.ToString();
+                    richTextBox1.SelectionStart = richTextBox1.Text.Length;
+                    fileName = filePath;
+                    Form1.ActiveForm.Text = windowTitle + fileName;
+                    savedAs = true;
+                    edited = false;
+                    label2.Text = "False";
+                }
+            }
+        }
+
+        private DialogResult getUserChoice()
+        {
+            DialogResult result = MessageBox.Show("Do you wan't to save them?", "You have unsaved changes", MessageBoxButtons.YesNoCancel);
+            return result;
+        }
+
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (edited)
+            {
+                var result = getUserChoice();
+                if (result == DialogResult.Yes)
+                {
+                    if (!savedAs) saveFileAs();
+                    if (savedAs) saveFile();
+                }
+                if (result == DialogResult.Cancel) return;
+            }
+            richTextBox1.Text = string.Empty;
+            fileName = "dok1.txt";
+            savedAs = false;
+            edited = false;
+            label2.Text = "False";
+            Form1.ActiveForm.Text = windowTitle + fileName;
         }
     }
 }
